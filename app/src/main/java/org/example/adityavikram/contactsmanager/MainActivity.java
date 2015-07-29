@@ -8,6 +8,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 
@@ -21,8 +23,16 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         ContentResolver cont= getContentResolver();
         Cursor c= cont.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-        ArrayList<String> contacts = new ArrayList<>();
-        ArrayList<String> name = new ArrayList<>();
+
+        ListView listView = (ListView) findViewById(R.id.Contact_list_view);
+        private class ContactAdapter extends ArrayAdapter<Contact>{
+            ContactAdapter(ArrayList<Contact>){
+                super(MainActivity.this);
+            }
+        }
+
+        ArrayList<String> contacts = new ArrayList<>();         //Storing ContactNumber
+        ArrayList<String> name = new ArrayList<>();             //Storing ContactName
 
         if(c.moveToFirst()) {
             do {String contactId = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
@@ -43,6 +53,7 @@ public class MainActivity extends ActionBarActivity {
             Log.d(tag,name.get(i));
         }
         c.close();
+
 
     }
 
