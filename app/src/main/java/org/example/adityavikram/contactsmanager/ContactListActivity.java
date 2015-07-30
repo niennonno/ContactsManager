@@ -1,6 +1,7 @@
 package org.example.adityavikram.contactsmanager;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -8,33 +9,37 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends ActionBarActivity {
-    private static final String tag = "MainActivity";
+public class ContactListActivity extends ActionBarActivity {
+    private static final String tag = "ContactListActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_contact_list);
+
+        final ArrayList<Contact> PhoneContact = new ArrayList<Contact>();
+        Contact temp=new Contact();
+
         ContentResolver cont= getContentResolver();
         Cursor c= cont.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 
-        ListView listView = (ListView) findViewById(R.id.Contact_list_view);
-        private class ContactAdapter extends ArrayAdapter<Contact>{
-            ContactAdapter(ArrayList<Contact>){
-                super(MainActivity.this);
-            }
-        }
 
         ArrayList<String> contacts = new ArrayList<>();         //Storing ContactNumber
         ArrayList<String> name = new ArrayList<>();             //Storing ContactName
 
         if(c.moveToFirst()) {
+
             do {String contactId = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
                 if (Integer.parseInt(c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)))>0) {
                     Cursor num = cont.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{contactId}, null);
@@ -47,15 +52,73 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
             while (c.moveToNext());
+
         }
+
         for (int i = 0; i < contacts.size(); i++) {
             Log.d(tag, contacts.get(i));
-            Log.d(tag,name.get(i));
+            Log.d(tag, name.get(i));
+            temp.setCNum(contacts.get(i));
+            temp.setCName(name.get(i));
+            PhoneContact.add(temp);
         }
+
+        ListView listView = (ListView) findViewById(R.id.Contact_list_view);
+        listView.setAdapter(new ContactAdapter(PhoneContact));
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            int previousFirstItem = 0;
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem > previousFirstItem)
+                    getSupportActionBar().hide();
+
+                else if (firstVisibleItem < previousFirstItem)
+                    getSupportActionBar().show();
+
+                previousFirstItem = firstVisibleItem;
+            }
+        });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Contact con=PhoneContact.get(position);
+                Intent i = new Intent(ContactListActivity.this,ContactViewActivity.class);
+                i.putExtra(ContactViewActivity.EXTRA, con);
+                startActivity(i);
+            }
+        });
+
         c.close();
 
-
     }
+
+
+
+    private class ContactAdapter extends ArrayAdapter<Contact> {
+        ContactAdapter(ArrayList<Contact> PhoneContact) {
+            super(ContactListActivity.this, R.layout.contact_row, R.id.row_name, PhoneContact);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            convertView = super.getView(position, convertView, parent);
+
+            Contact contact = getItem(position);
+
+            TextView nameTextView = (TextView) convertView.findViewById(R.id.row_name);
+            nameTextView.setText(contact.getCName());
+            return convertView;
+        }
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -63,6 +126,8 @@ public class MainActivity extends ActionBarActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

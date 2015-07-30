@@ -1,9 +1,11 @@
 package org.example.adityavikram.contactsmanager;
 
+import java.io.Serializable;
+
 /**
  * Created by Aditya Vikram on 7/29/2015.
  */
-public class Contact {
+public class Contact implements Serializable {
     private String CName;
     private String CNum;
 
