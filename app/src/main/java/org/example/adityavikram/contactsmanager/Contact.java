@@ -1,6 +1,7 @@
 package org.example.adityavikram.contactsmanager;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by Aditya Vikram on 7/29/2015.
@@ -8,6 +9,7 @@ import java.io.Serializable;
 public class Contact implements Serializable {
     private String CName;
     private String CNum;
+    public ArrayList<String> ContactNum;
 
     public String getCName() {
         return CName;
@@ -17,11 +19,11 @@ public class Contact implements Serializable {
         this.CName = CName;
     }
 
-    public String getCNum() {
+  public String getCNum() {
         return CNum;
     }
 
-    public void setCNum(String CNum) {
-        this.CNum = CNum;
-    }
+   public void setCNum(String CNum) {
+       this.CNum = CNum;
+   }
 }

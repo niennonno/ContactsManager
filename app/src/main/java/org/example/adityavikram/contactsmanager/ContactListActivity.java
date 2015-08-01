@@ -75,11 +75,12 @@ public class ContactListActivity extends ActionBarActivity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem > previousFirstItem)
+                if (firstVisibleItem > previousFirstItem) {
                     getSupportActionBar().hide();
-
-                else if (firstVisibleItem < previousFirstItem)
+                }
+                else if (firstVisibleItem < previousFirstItem) {
                     getSupportActionBar().show();
+                }
 
                 previousFirstItem = firstVisibleItem;
             }
