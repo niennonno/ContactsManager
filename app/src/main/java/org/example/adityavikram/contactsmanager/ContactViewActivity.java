@@ -1,8 +1,12 @@
 package org.example.adityavikram.contactsmanager;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Display;
@@ -24,6 +28,9 @@ public class ContactViewActivity extends ActionBarActivity {
 
     public static final String EXTRA = "CVA_Contact";
     private static final String TAG = "ContactViewActivity";
+
+    private int mColor;
+    private Contact mContact;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,13 +42,13 @@ public class ContactViewActivity extends ActionBarActivity {
         display.getSize(point);
 
         int width=point.x;
-        int height=point.y;
+        //int height=point.y;
         headerSection.setLayoutParams(new LinearLayout.LayoutParams(width, (int) (width * (9.0 / 16.0))));
 
 
-        Contact contact = (Contact) getIntent().getSerializableExtra(EXTRA);
+        mContact = (Contact) getIntent().getSerializableExtra(EXTRA);
         TextView contactName=(TextView)findViewById(R.id.contact_view_name);
-        contactName.setText(contact.getCName());
+        contactName.setText(mContact.getCName());
 
         Toolbar toolbar=(Toolbar)findViewById(R.id.contact_view_toolbar);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
@@ -49,14 +56,23 @@ public class ContactViewActivity extends ActionBarActivity {
             public boolean onMenuItemClick(MenuItem menuItem) {
                 int id = menuItem.getItemId();
                 if (id == R.id.contact_view_edit) {
+                    Intent i = new Intent(ContactViewActivity.this,ContactEditActivity.class);
+                    i.putExtra(ContactEditActivity.EXTRA, mContact);
+                    startActivity(i);
                     return true;
+                }else {
+                    return false;
                 }
-                return false;
             }
         });
         toolbar.inflateMenu(R.menu.menu_contact_view);
+
         ListView listView= (ListView)findViewById(R.id.contact_view_field);
-        listView.setAdapter(new FieldsAdapter(contact.ContactNum));
+        listView.setAdapter(new FieldsAdapter(mContact.ContactNum));
+
+        Bitmap bitmap= BitmapFactory.decodeResource(getResources(),R.mipmap.something);
+        Palette palette=Palette.generate(bitmap);
+        mColor=palette.getDarkVibrantSwatch().getRgb();
     }
 
     private class FieldsAdapter extends BaseAdapter{
@@ -82,9 +98,10 @@ public class ContactViewActivity extends ActionBarActivity {
             contactValue.setText(value);
 
             ImageView iv= (ImageView)convertView.findViewById(R.id.field_icon);
-            iv.setImageResource(R.drawable.ic_call);
-
-
+            if (isFirst(position)) {
+                iv.setImageResource(R.drawable.ic_call);
+            }
+            iv.setColorFilter(mColor);
             return convertView;
         }
 
