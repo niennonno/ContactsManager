@@ -67,7 +67,7 @@ public class ContactListActivity extends ActionBarActivity {
         }
 
         ListView listView = (ListView) findViewById(R.id.Contact_list_view);
-        mAdapter=new ContactAdapter(PhoneContact)
+        mAdapter=new ContactAdapter(PhoneContact);
         listView.setAdapter(mAdapter);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             int previousFirstItem = 0;
