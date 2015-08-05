@@ -31,6 +31,10 @@ public class ContactViewActivity extends ActionBarActivity {
 
     private int mColor;
     private Contact mContact;
+    private int mPosition;
+    private TextView mContactName;
+    private FieldsAdapter mAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,9 +50,9 @@ public class ContactViewActivity extends ActionBarActivity {
         headerSection.setLayoutParams(new LinearLayout.LayoutParams(width, (int) (width * (9.0 / 16.0))));
 
 
-        mContact = (Contact) getIntent().getSerializableExtra(EXTRA);
-        TextView contactName=(TextView)findViewById(R.id.contact_view_name);
-        contactName.setText(mContact.getCName());
+        mPosition =getIntent().getIntExtra(EXTRA, 0);
+        mContact=ContactList.getsInstance().get(mPosition);
+        mContactName =(TextView)findViewById(R.id.contact_view_name);
 
         Toolbar toolbar=(Toolbar)findViewById(R.id.contact_view_toolbar);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
@@ -57,7 +61,7 @@ public class ContactViewActivity extends ActionBarActivity {
                 int id = menuItem.getItemId();
                 if (id == R.id.contact_view_edit) {
                     Intent i = new Intent(ContactViewActivity.this,ContactEditActivity.class);
-                    i.putExtra(ContactEditActivity.EXTRA, mContact);
+                    i.putExtra(ContactEditActivity.EXTRA, mPosition);
                     startActivity(i);
                     return true;
                 }else {
@@ -68,12 +72,20 @@ public class ContactViewActivity extends ActionBarActivity {
         toolbar.inflateMenu(R.menu.menu_contact_view);
 
         ListView listView= (ListView)findViewById(R.id.contact_view_field);
-        listView.setAdapter(new FieldsAdapter(mContact.ContactNum));
+       mAdapter= new FieldsAdapter(mContact.ContactNum);
+        listView.setAdapter(mAdapter);
 
         Bitmap bitmap= BitmapFactory.decodeResource(getResources(),R.mipmap.something);
         Palette palette=Palette.generate(bitmap);
         mColor=palette.getDarkVibrantSwatch().getRgb();
+        updateUI();
     }
+
+    private void updateUI(){
+        mContactName.setText(mContact.getCName());
+        mAdapter.notifyDataSetChanged();
+    }
+
 
     private class FieldsAdapter extends BaseAdapter{
         ArrayList<String> numbers;
@@ -126,6 +138,12 @@ public class ContactViewActivity extends ActionBarActivity {
 
             return numbers.get(position);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateUI();
     }
 
     @Override

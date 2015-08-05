@@ -23,13 +23,16 @@ import java.util.ArrayList;
 public class ContactListActivity extends ActionBarActivity {
     private static final String tag = "ContactListActivity";
 
+    private ContactList PhoneContact;
+    private ContactAdapter mAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_list);
 
-        final ArrayList<Contact> PhoneContact = new ArrayList<Contact>();
         Contact temp=new Contact();
+        PhoneContact=ContactList.getsInstance();
 
         ContentResolver cont= getContentResolver();
         Cursor c= cont.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
@@ -64,7 +67,8 @@ public class ContactListActivity extends ActionBarActivity {
         }
 
         ListView listView = (ListView) findViewById(R.id.Contact_list_view);
-        listView.setAdapter(new ContactAdapter(PhoneContact));
+        mAdapter=new ContactAdapter(PhoneContact)
+        listView.setAdapter(mAdapter);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             int previousFirstItem = 0;
 
@@ -89,9 +93,8 @@ public class ContactListActivity extends ActionBarActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Contact con=PhoneContact.get(position);
                 Intent i = new Intent(ContactListActivity.this,ContactViewActivity.class);
-                i.putExtra(ContactViewActivity.EXTRA, con);
+                i.putExtra(ContactViewActivity.EXTRA, position);
                 startActivity(i);
             }
         });
@@ -119,7 +122,11 @@ public class ContactListActivity extends ActionBarActivity {
         }
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mAdapter.notifyDataSetChanged();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
